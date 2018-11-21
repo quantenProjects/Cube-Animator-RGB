@@ -1,0 +1,9 @@
+.led-ui-element {
+    -moz-user-select: none;
+    user-select: none;
+    font-size: 60px;
+}
+
+body {
+    background-color: #DDDDDD;
+}

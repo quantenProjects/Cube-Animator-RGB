@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cube Animator RGB</title>
+    <link rel="stylesheet" type="text/css" href="css.css">
+</head>
+<body>
+    <div id="led_ui">
+    </div>
+    <br>
+    <div id="control_ui">
+        <select id="action_control">
+            <option selected value="FF">Fuellen</option>
+            <option value="00">Loeschen</option>
+        </select>
+        <select id="color_control">
+            <option selected value="r">Rot</option>
+            <option value="g">Gruen</option>
+            <option value="b">Blau</option>
+            <option value="rgb">Weiss</option>
+            <option value="rb">rotblau</option>
+        </select>
+        <div id="frame_counter">0/0</div>
+        <input type="button" value="<" onclick="next_frame();"/>
+        <input type="button" value=">" onclick="prev_frame();"/>
+        <input type="button" value="Frame hinzufuegen" onclick="add_frame();">
+    </div>
+</body>
+<script type="text/javascript" src="script.js"></script>
+</html>
