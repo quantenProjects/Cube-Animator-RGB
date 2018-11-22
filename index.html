@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <title>Cube Animator RGB</title>
     <link rel="stylesheet" type="text/css" href="css.css">
+    <script language="JavaScript">
+        //window.onbeforeunload = confirmExit; //TODO wieder rein machen, zum Debuggen ultra nervig
+        function confirmExit()
+        {
+            return "You have attempted to leave this page.  If you have made any changes to the fields without clicking the Save button, your changes will be lost.  Are you sure you want to exit this page?";
+        }
+    </script>
 </head>
 <body>
     <div id="led_ui">
@@ -22,9 +29,17 @@
             <option value="rb">rotblau</option>
         </select>
         <div id="frame_counter">0/0</div>
-        <input type="button" value="<" onclick="next_frame();"/>
-        <input type="button" value=">" onclick="prev_frame();"/>
+        <input type="button" value="<" onclick="prev_frame();"/>
+        <input type="button" value=">" onclick="next_frame();"/>
         <input type="button" value="Frame hinzufuegen" onclick="add_frame();">
+        <input type="button" value="Frame loeschen" onclick="delete_frame();">
+        <br>
+        <input type="button" id="play_pause_button" value="Play" onclick="play_pause();">
+        Delay: <input type="number" id="delay_spinner" value="100">
+        Schleife: <input type="checkbox" id="loop_checkbox" checked>
+        <br>
+        <input type="file" id="file_open_input" onchange="open_file(this.files)">
+
     </div>
 </body>
 <script type="text/javascript" src="script.js"></script>
