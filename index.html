@@ -38,9 +38,14 @@
         Delay: <input type="number" id="delay_spinner" value="100">
         Schleife: <input type="checkbox" id="loop_checkbox" checked>
         <br>
+        Oeffnen:
         <input type="file" id="file_open_input" onchange="open_file(this.files)">
+        <br>
+        Dateiname: <input type="text" value="animation" id="filename_input">.c4b
+        <input type="button" value="Speichern" onclick="save_file();">
 
     </div>
+<a id="download_link_hidden" style="display: none;"></a>
 </body>
 <script type="text/javascript" src="script.js"></script>
 </html>

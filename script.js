@@ -133,6 +133,28 @@ function byte_to_boolarray(input_number) {
     return result;
 }
 
+function boolarray_to_bytes(boolarray) {
+    if (boolarray.length % 8 == 0) {
+        //thanks to https://blog.logrocket.com/binary-data-in-the-browser-untangling-an-encoding-mess-with-javascript-typed-arrays-119673c0f1fe
+        // for solving this #C2 shit with an Uint8Array :D
+        var bytes = new Uint8Array(boolarray.length/8);
+        for (var i =0 ; i<boolarray.length; i+=8) {
+            var byte_value = 0;
+            for (var j = 0; j<8; j++ ) {
+                if (boolarray[i + j]) {
+                    var exp = 7-j;
+                    byte_value += Math.pow(2,exp);
+                }
+            }
+            bytes[i/8] = byte_value;
+        }
+        return bytes
+    } else {
+        alert("Interner Fehler, boolarray hat falsche Laenge!!!")
+        return "";
+    }
+}
+
 function open_file(file_list) {
     var fr = new FileReader();
     fr.onloadend = function () {
@@ -159,8 +181,6 @@ function open_file(file_list) {
                     }
                 }
                 new_frames.push(frame);
-
-                //console.log(byte_to_boolarray(result.charCodeAt(frame_number)));
             }
             frames = new_frames;
             curr_frame = 0;
@@ -170,6 +190,34 @@ function open_file(file_list) {
         }
     };
     fr.readAsBinaryString(file_list[0]);
+}
+
+function save_file() {
+    var colors = "rgb".split("");
+    var frame_count = frames.length;
+    var data = [];
+    const BITS_PER_FRAME = (LENGTH * HEIGHT * WIDTH * 3);
+    for (var frame_number = 0; frame_number < frame_count; frame_number++) {
+        for (var i = 0; i < HEIGHT; i++) { //Layer
+            for (var color_index in colors) {
+                var color = colors[color_index];
+                for (var j = 0; j < WIDTH; j++) {
+                    for (var k = 0; k < LENGTH; k++) {
+                        data[frame_number * BITS_PER_FRAME + i * 3 * 4 * 4 + color_index * 16 + j * 4 + k] = frames[frame_number][i][j][k][color];
+                    }
+                }
+            }
+        }
+    }
+    var data_string = boolarray_to_bytes(data);
+    var a = document.getElementById("download_link_hidden");
+    var blob =  new Blob([data_string]);
+    var url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = document.getElementById("filename_input").value + ".c4b";
+    a.click();
+    window.URL.revokeObjectURL(url);
+
 }
 
 create_table();
