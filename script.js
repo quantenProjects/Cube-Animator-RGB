@@ -178,7 +178,7 @@ function open_file(file_list) {
         var result = this.result;
         const BYTES_PER_FRAME = (LENGTH * HEIGHT * WIDTH * 3 / 8);
         if (this.result.length % BYTES_PER_FRAME == 0) {
-            var colors = "rgb".split("");
+            var colors = "rbg".split(""); //anderes Speicherformat
             var frame_count = this.result.length / BYTES_PER_FRAME;
             var new_frames = [];
             for (var frame_number = 0; frame_number < frame_count; frame_number++) {
@@ -210,7 +210,7 @@ function open_file(file_list) {
 }
 
 function save_file() {
-    var colors = "rgb".split("");
+    var colors = "rbg".split(""); //anderes Speicherformat
     var frame_count = frames.length;
     var data = [];
     const BITS_PER_FRAME = (LENGTH * HEIGHT * WIDTH * 3);
