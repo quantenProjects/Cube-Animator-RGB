@@ -8,9 +8,14 @@ var curr_frame = 0;
 var play_interval = null;
 
 
+function deep_clone(obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
+
+
 function create_table() {
 
-    var led_ui_html = "<table>\n";
+    var led_ui_html = "<table class='leds'>\n";
 
     for (var i = 0; i < WIDTH; i++) {
         led_ui_html += "<tr>";
@@ -19,7 +24,8 @@ function create_table() {
                 var led_id = j.toString() + i + k;
                 led_ui_html += "<td id='led" + led_id + "' onmouseenter='mouseenter_event(event,\"" + led_id + "\")' onmousedown='mouseenter_event(event,\"" + led_id + "\")' class='led-ui-element'>&#x25cf;</td>";
             }
-            led_ui_html += "<td> </td>";
+            if (j + 1 < HEIGHT)
+                led_ui_html += "<td class='placeholder'> </td>";
         }
         led_ui_html += "</tr>";
     }
@@ -31,10 +37,11 @@ function create_table() {
 
 function mouseenter_event(event, element) {
     if (event.buttons == 1) {
-        var e = document.getElementById("color_control");
-        var colors = e.options[e.selectedIndex].value.split("");
-        var e = document.getElementById("action_control");
-        var action = (e.options[e.selectedIndex].value === "FF");
+        var colors = [];
+        for (var i in "rgb") {
+            if (document.getElementById("checkbox_" + "rgb"[i]).checked) colors.push("rgb"[i]);
+        }
+        var action = document.getElementById("radiobox_fill").checked;
         var led_indecies = element.split("");
         for (var color in colors) {
             frames[curr_frame][parseInt(led_indecies[0])][parseInt(led_indecies[1])][parseInt(led_indecies[2])][colors[color]] = action;
@@ -69,9 +76,19 @@ function add_frame() {
 }
 
 function delete_frame() {
-    frames.splice(curr_frame, 1);
-    if (curr_frame == frames.length) curr_frame = frames.length - 1;
+    if (frames.length == 1) {
+        frames = [];
+        add_frame();
+    } else {
+        frames.splice(curr_frame, 1);
+        if (curr_frame == frames.length) curr_frame = frames.length - 1;
+    }
     display_frame();
+}
+
+function copy_frame() {
+    frames.splice(curr_frame + 1, 0, deep_clone(frames[curr_frame]));
+    next_frame();
 }
 
 function display_pixel(i, j, k) {
@@ -137,20 +154,20 @@ function boolarray_to_bytes(boolarray) {
     if (boolarray.length % 8 == 0) {
         //thanks to https://blog.logrocket.com/binary-data-in-the-browser-untangling-an-encoding-mess-with-javascript-typed-arrays-119673c0f1fe
         // for solving this #C2 shit with an Uint8Array :D
-        var bytes = new Uint8Array(boolarray.length/8);
-        for (var i =0 ; i<boolarray.length; i+=8) {
+        var bytes = new Uint8Array(boolarray.length / 8);
+        for (var i = 0; i < boolarray.length; i += 8) {
             var byte_value = 0;
-            for (var j = 0; j<8; j++ ) {
+            for (var j = 0; j < 8; j++) {
                 if (boolarray[i + j]) {
-                    var exp = 7-j;
-                    byte_value += Math.pow(2,exp);
+                    var exp = 7 - j;
+                    byte_value += Math.pow(2, exp);
                 }
             }
-            bytes[i/8] = byte_value;
+            bytes[i / 8] = byte_value;
         }
         return bytes
     } else {
-        alert("Interner Fehler, boolarray hat falsche Laenge!!!")
+        alert("Interner Fehler, boolarray hat falsche Laenge!!!");
         return "";
     }
 }
@@ -211,14 +228,68 @@ function save_file() {
     }
     var data_string = boolarray_to_bytes(data);
     var a = document.getElementById("download_link_hidden");
-    var blob =  new Blob([data_string]);
+    var blob = new Blob([data_string]);
     var url = window.URL.createObjectURL(blob);
     a.href = url;
     a.download = document.getElementById("filename_input").value + ".c4b";
     a.click();
     window.URL.revokeObjectURL(url);
-
 }
+
+function toogle_color_control(color_char) {
+    document.getElementById("checkbox_" + color_char).checked = !document.getElementById("checkbox_" + color_char).checked
+}
+
+window.onkeyup = function (e) {
+    var key = e.keyCode ? e.keyCode : e.which;
+    if (e.target.tagName == "INPUT") return;
+
+    switch (key) {
+        case 37: //pfeil links
+            prev_frame();
+            break;
+        case 39: // pfeil rechts
+            next_frame();
+            break;
+        case 65: // a
+            add_frame();
+            break;
+        case 68: // d
+            delete_frame();
+            break;
+        case 32: // spacebar
+            play_pause();
+            break;
+        case 82: // r
+            toogle_color_control("r");
+            break;
+        case 71: // g
+            toogle_color_control("g");
+            break;
+        case 66: // b
+            toogle_color_control("b");
+            break;
+        case 87: // w
+            for (var i in "rgb")
+                document.getElementById("checkbox_" + "rgb"[i]).checked = true;
+            break;
+        case 70: // f
+            if (document.getElementById("radiobox_fill").checked) {
+                document.getElementById("radiobox_empty").checked = true;
+            } else {
+                document.getElementById("radiobox_fill").checked = true;
+            }
+            break;
+        case 67: // c
+            copy_frame();
+            break;
+
+
+    }
+
+    console.log(key);
+
+};
 
 create_table();
 add_frame();

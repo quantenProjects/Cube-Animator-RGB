@@ -1,50 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <title>Cube Animator RGB</title>
     <link rel="stylesheet" type="text/css" href="css.css">
     <script language="JavaScript">
-        //window.onbeforeunload = confirmExit; //TODO wieder rein machen, zum Debuggen ultra nervig
-        function confirmExit()
-        {
+        window.onbeforeunload = confirmExit; //TODO wieder rein machen, zum Debuggen ultra nervig
+        function confirmExit() {
             return "You have attempted to leave this page.  If you have made any changes to the fields without clicking the Save button, your changes will be lost.  Are you sure you want to exit this page?";
         }
     </script>
 </head>
 <body>
-    <div id="led_ui">
-    </div>
-    <br>
-    <div id="control_ui">
-        <select id="action_control">
-            <option selected value="FF">Fuellen</option>
-            <option value="00">Loeschen</option>
-        </select>
-        <select id="color_control">
-            <option selected value="r">Rot</option>
-            <option value="g">Gruen</option>
-            <option value="b">Blau</option>
-            <option value="rgb">Weiss</option>
-            <option value="rb">rotblau</option>
-        </select>
-        <div id="frame_counter">0/0</div>
-        <input type="button" value="<" onclick="prev_frame();"/>
-        <input type="button" value=">" onclick="next_frame();"/>
-        <input type="button" value="Frame hinzufuegen" onclick="add_frame();">
-        <input type="button" value="Frame loeschen" onclick="delete_frame();">
-        <br>
-        <input type="button" id="play_pause_button" value="Play" onclick="play_pause();">
+<div id="led_ui">
+</div>
+<br>
+<div id="control_ui">
+    <table>
+        <tr>
+            <th>
+                Farben
+            </th>
+            <th>
+                Aktion
+            </th>
+        </tr>
+        <tr>
+            <td>
+                <label class="container">
+                    <input type="checkbox" id="checkbox_r" title="Shortcut: r" checked>Rot
+                </label>
+            </td>
+            <td><input type="radio" name="action" id="radiobox_fill" title="Shortcut: f" checked>Fuellen</td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" id="checkbox_g" title="Shortcut: g">Gruen</td>
+            <td><input type="radio" name="action" id="radiobox_empty" title="Shortcut: f">Loeschen</td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" id="checkbox_b" title="Shortcut: b">Blau</td>
+        </tr>
+    </table>
+    <p>
+        <a id="frame_counter">0/0</a>
+    </p>
+    <p>
+        <input class="button" type="button" value="<" onclick="prev_frame();" title="Pfeiltaste links"/>
+        <input class="button" type="button" value=">" onclick="next_frame();" title="Pfeiltaste rechts"/>
+        <input class="button" type="button" value="Frame hinzufuegen" onclick="add_frame();" title="Shortcut: a">
+        <input class="button" type="button" value="Frame loeschen" onclick="delete_frame();" title="Shortcut: d">
+        <input class="button" type="button" value="Frame kopieren" onclick="copy_frame();" title="Shortcut: c">
+    </p>
+    <p>
+        <input class="button" type="button" id="play_pause_button" value="Play" onclick="play_pause();"
+               title="Shortcut: Spacebar">
         Delay: <input type="number" id="delay_spinner" value="100">
         Schleife: <input type="checkbox" id="loop_checkbox" checked>
-        <br>
+    </p>
+    <p>
         Oeffnen:
         <input type="file" id="file_open_input" onchange="open_file(this.files)">
-        <br>
-        Dateiname: <input type="text" value="animation" id="filename_input">.c4b
-        <input type="button" value="Speichern" onclick="save_file();">
+    </p>
+    <p>
+        Dateiname: <input type="text" value="animation" id="filename_input"><a id="file_extension">.c4b</a>
+        <input class="button" type="button" value="Speichern" onclick="save_file();">
+    </p>
 
-    </div>
+</div>
 <a id="download_link_hidden" style="display: none;"></a>
 </body>
 <script type="text/javascript" src="script.js"></script>
