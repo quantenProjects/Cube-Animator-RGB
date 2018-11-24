@@ -26,16 +26,12 @@
             </th>
         </tr>
         <tr>
-            <td>
-                <label class="container">
-                    <input type="checkbox" id="checkbox_r" title="Shortcut: r" checked>Rot
-                </label>
-            </td>
-            <td><input type="radio" name="action" id="radiobox_fill" title="Shortcut: f" checked>Fuellen</td>
+            <td><input type="checkbox" id="checkbox_r" title="Shortcut: r" checked>Rot</td>
+            <td><input type="radio" name="action" id="radiobox_fill" title="Shortcut: f" checked>Füllen</td>
         </tr>
         <tr>
-            <td><input type="checkbox" id="checkbox_g" title="Shortcut: g">Gruen</td>
-            <td><input type="radio" name="action" id="radiobox_empty" title="Shortcut: f">Loeschen</td>
+            <td><input type="checkbox" id="checkbox_g" title="Shortcut: g">Grün</td>
+            <td><input type="radio" name="action" id="radiobox_empty" title="Shortcut: f">Löschen</td>
         </tr>
         <tr>
             <td><input type="checkbox" id="checkbox_b" title="Shortcut: b">Blau</td>
@@ -47,8 +43,8 @@
     <p>
         <input class="button" type="button" value="<" onclick="prev_frame();" title="Pfeiltaste links"/>
         <input class="button" type="button" value=">" onclick="next_frame();" title="Pfeiltaste rechts"/>
-        <input class="button" type="button" value="Frame hinzufuegen" onclick="add_frame();" title="Shortcut: a">
-        <input class="button" type="button" value="Frame loeschen" onclick="delete_frame();" title="Shortcut: d">
+        <input class="button" type="button" value="Frame hinzufügen" onclick="add_frame();" title="Shortcut: a">
+        <input class="button" type="button" value="Frame löschen" onclick="delete_frame();" title="Shortcut: d">
         <input class="button" type="button" value="Frame kopieren" onclick="copy_frame();" title="Shortcut: c">
     </p>
     <p>
@@ -58,7 +54,7 @@
         Schleife: <input type="checkbox" id="loop_checkbox" checked>
     </p>
     <p>
-        Oeffnen:
+        Öffnen:
         <input type="file" id="file_open_input" onchange="open_file(this.files)">
     </p>
     <p>
