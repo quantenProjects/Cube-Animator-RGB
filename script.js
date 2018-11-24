@@ -7,6 +7,7 @@ var curr_frame = 0;
 
 var play_interval = null;
 
+const color_order_binary = "bgr";
 
 function deep_clone(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -178,7 +179,7 @@ function open_file(file_list) {
         var result = this.result;
         const BYTES_PER_FRAME = (LENGTH * HEIGHT * WIDTH * 3 / 8);
         if (this.result.length % BYTES_PER_FRAME == 0) {
-            var colors = "rbg".split(""); //anderes Speicherformat
+            var colors = color_order_binary.split("");
             var frame_count = this.result.length / BYTES_PER_FRAME;
             var new_frames = [];
             for (var frame_number = 0; frame_number < frame_count; frame_number++) {
@@ -210,7 +211,7 @@ function open_file(file_list) {
 }
 
 function save_file() {
-    var colors = "rbg".split(""); //anderes Speicherformat
+    var colors = color_order_binary.split("");
     var frame_count = frames.length;
     var data = [];
     const BITS_PER_FRAME = (LENGTH * HEIGHT * WIDTH * 3);
