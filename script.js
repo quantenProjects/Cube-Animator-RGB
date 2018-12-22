@@ -37,19 +37,32 @@ function create_table() {
 }
 
 function mouseenter_event(event, element) {
-    if (event.buttons == 1) {
-        var colors = [];
-        for (var i in "rgb") {
-            if (document.getElementById("checkbox_" + "rgb"[i]).checked) colors.push("rgb"[i]);
-        }
-        var action = document.getElementById("radiobox_fill").checked;
-        var led_indecies = element.split("");
-        for (var color in colors) {
-            frames[curr_frame][parseInt(led_indecies[0])][parseInt(led_indecies[1])][parseInt(led_indecies[2])][colors[color]] = action;
-        }
-        console.log(element);
-        display_pixel(parseInt(led_indecies[0]), parseInt(led_indecies[1]), parseInt(led_indecies[2]));
+    switch (event.buttons) {
+        case 1: // linksklick
+            handle_mouseevent("left",element);
+            break;
+        case 2: // rechtsklick
+            handle_mouseevent("right",element);
+            break;
+        case 3: // beide
+            handle_mouseevent("left",element);
+            handle_mouseevent("right",element);
+            break;
     }
+}
+
+function handle_mouseevent(button,element) {
+    var colors = [];
+    for (var i in "rgb") {
+        if (document.getElementById("checkbox_" + button + "_" + "rgb"[i]).checked) colors.push("rgb"[i]);
+    }
+    var action = document.getElementById("radiobox_" + button + "_fill").checked;
+    var led_indecies = element.split("");
+    for (var color in colors) {
+        frames[curr_frame][parseInt(led_indecies[0])][parseInt(led_indecies[1])][parseInt(led_indecies[2])][colors[color]] = action;
+    }
+    //console.log(element);
+    display_pixel(parseInt(led_indecies[0]), parseInt(led_indecies[1]), parseInt(led_indecies[2]));
 
 }
 
@@ -237,58 +250,77 @@ function save_file() {
     window.URL.revokeObjectURL(url);
 }
 
-function toogle_color_control(color_char) {
-    document.getElementById("checkbox_" + color_char).checked = !document.getElementById("checkbox_" + color_char).checked
+function toogle_color_control(color_char,button) {
+    document.getElementById("checkbox_" + button + "_" + color_char).checked = !document.getElementById("checkbox_" + button + "_" + color_char).checked
 }
 
 window.onkeyup = function (e) {
-    var key = e.keyCode ? e.keyCode : e.which;
     if (e.target.tagName == "INPUT") return;
 
-    switch (key) {
-        case 37: //pfeil links
+    switch (e.key) {
+        case "ArrowLeft": //pfeil links
             prev_frame();
             break;
-        case 39: // pfeil rechts
+        case "ArrowRight": // pfeil rechts
             next_frame();
             break;
-        case 65: // a
+        case "a": // a
             add_frame();
             break;
-        case 68: // d
+        case "d": // d
             delete_frame();
             break;
-        case 32: // spacebar
+        case "c": // c
+            copy_frame();
+            break;
+        case " ": // spacebar
             play_pause();
             break;
-        case 82: // r
-            toogle_color_control("r");
+        case "r": // r
+            toogle_color_control("r","left");
             break;
-        case 71: // g
-            toogle_color_control("g");
+        case "g": // g
+            toogle_color_control("g","left");
             break;
-        case 66: // b
-            toogle_color_control("b");
+        case "b": // b
+            toogle_color_control("b","left");
             break;
-        case 87: // w
+        case "w": // w
             for (var i in "rgb")
-                document.getElementById("checkbox_" + "rgb"[i]).checked = true;
+                document.getElementById("checkbox_left_" + "rgb"[i]).checked = true;
             break;
-        case 70: // f
-            if (document.getElementById("radiobox_fill").checked) {
-                document.getElementById("radiobox_empty").checked = true;
+        case "f": // f
+            if (document.getElementById("radiobox_left_fill").checked) {
+                document.getElementById("radiobox_left_empty").checked = true;
             } else {
-                document.getElementById("radiobox_fill").checked = true;
+                document.getElementById("radiobox_left_fill").checked = true;
             }
             break;
-        case 67: // c
-            copy_frame();
+        case "R": // r
+            toogle_color_control("r","right");
+            break;
+        case "G": // g
+            toogle_color_control("g","right");
+            break;
+        case "B": // b
+            toogle_color_control("b","right");
+            break;
+        case "W": // w
+            for (var i in "rgb")
+                document.getElementById("checkbox_right_" + "rgb"[i]).checked = true;
+            break;
+        case "F": // f
+            if (document.getElementById("radiobox_right_fill").checked) {
+                document.getElementById("radiobox_right_empty").checked = true;
+            } else {
+                document.getElementById("radiobox_right_fill").checked = true;
+            }
             break;
 
 
     }
 
-    console.log(key);
+    //console.log(e);
 
 };
 

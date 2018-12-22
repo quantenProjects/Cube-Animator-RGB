@@ -12,30 +12,43 @@
     </script>
 </head>
 <body>
-<div id="led_ui">
+<div id="led_ui" oncontextmenu="return false;">
 </div>
 <br>
 <div id="control_ui">
     <table>
         <tr>
             <th>
-                Farben
+                Farben Linksklick
             </th>
             <th>
-                Aktion
+                Aktion Linksklick
+            </th>
+            <th>
+                Farben Rechtsklick
+            </th>
+            <th>
+                Aktion Rechtsklick
             </th>
         </tr>
         <tr>
-            <td><input type="checkbox" id="checkbox_r" title="Shortcut: r" checked>Rot</td>
-            <td><input type="radio" name="action" id="radiobox_fill" title="Shortcut: f" checked>Füllen</td>
+            <td><input type="checkbox" id="checkbox_left_r" title="Shortcut: r" checked>Rot</td>
+            <td><input type="radio" name="action_left" id="radiobox_left_fill" title="Shortcut: f" checked>Füllen</td>
+            <td><input type="checkbox" id="checkbox_right_r" title="Shortcut: R" checked>Rot</td>
+            <td><input type="radio" name="action_right" id="radiobox_right_fill" title="Shortcut: F" checked>Füllen</td>
         </tr>
         <tr>
-            <td><input type="checkbox" id="checkbox_g" title="Shortcut: g">Grün</td>
-            <td><input type="radio" name="action" id="radiobox_empty" title="Shortcut: f">Löschen</td>
+            <td><input type="checkbox" id="checkbox_left_g" title="Shortcut: g">Grün</td>
+            <td><input type="radio" name="action_left" id="radiobox_left_empty" title="Shortcut: f">Löschen</td>
+            <td><input type="checkbox" id="checkbox_right_g" title="Shortcut: G">Grün</td>
+            <td><input type="radio" name="action_right" id="radiobox_right_empty" title="Shortcut: F">Löschen</td>
         </tr>
         <tr>
-            <td><input type="checkbox" id="checkbox_b" title="Shortcut: b">Blau</td>
+            <td><input type="checkbox" id="checkbox_left_b" title="Shortcut: B">Blau</td>
+            <td></td>
+            <td><input type="checkbox" id="checkbox_right_b" title="Shortcut: B">Blau</td>
         </tr>
+
     </table>
     <p>
         <a id="frame_counter">0/0</a>
