@@ -1,159 +1,31 @@
-var HEIGHT = 4; // Anzahl der Layer
-var WIDTH = 4;  // Breite
-var LENGTH = 4; // laenge der LEDs, in der UI vertikal
+const HEIGHT = 4; // Anzahl der Layer
+const WIDTH = 4;  // Breite
+const LENGTH = 4; // laenge der LEDs, in der UI vertikal
 
 var frames = [];
 var curr_frame = 0;
 
 var play_interval = null;
 
-const color_order_binary = "bgr";
+const COLOR_ORDER_BINARY = "bgr";
+const COLOR_QUANTITY = COLOR_ORDER_BINARY.length;
+const BITS_PER_FRAME = (LENGTH * HEIGHT * WIDTH * COLOR_QUANTITY);
+const BYTES_PER_FRAME = (BITS_PER_FRAME / 8);
 
+
+
+// Hilfefunktionen zum Umwandeln von Datentypen usw
+// =================================================
+
+
+// erzeugt einen komplett unabhaenigen Klon des Objektes
+// Wird beim Frame kopieren benutzt
 function deep_clone(obj) {
+
     return JSON.parse(JSON.stringify(obj));
 }
 
-
-function create_table() {
-
-    var led_ui_html = "<table class='leds'>\n";
-
-    for (var i = 0; i < WIDTH; i++) {
-        led_ui_html += "<tr>";
-        for (var j = 0; j < HEIGHT; j++) {
-            for (var k = 0; k < LENGTH; k++) {
-                var led_id = j.toString() + i + k;
-                led_ui_html += "<td id='led" + led_id + "' onmouseenter='mouseenter_event(event,\"" + led_id + "\")' onmousedown='mouseenter_event(event,\"" + led_id + "\")' class='led-ui-element'>&#x25cf;</td>";
-            }
-            if (j + 1 < HEIGHT)
-                led_ui_html += "<td class='placeholder'> </td>";
-        }
-        led_ui_html += "</tr>";
-    }
-
-    led_ui_html += "</table>";
-
-    document.getElementById("led_ui").innerHTML = led_ui_html;
-}
-
-function mouseenter_event(event, element) {
-    switch (event.buttons) {
-        case 1: // linksklick
-            handle_mouseevent("left",element);
-            break;
-        case 2: // rechtsklick
-            handle_mouseevent("right",element);
-            break;
-        case 3: // beide
-            handle_mouseevent("left",element);
-            handle_mouseevent("right",element);
-            break;
-    }
-}
-
-function handle_mouseevent(button,element) {
-    var colors = [];
-    for (var i in "rgb") {
-        if (document.getElementById("checkbox_" + button + "_" + "rgb"[i]).checked) colors.push("rgb"[i]);
-    }
-    var action = document.getElementById("radiobox_" + button + "_fill").checked;
-    var led_indecies = element.split("");
-    for (var color in colors) {
-        frames[curr_frame][parseInt(led_indecies[0])][parseInt(led_indecies[1])][parseInt(led_indecies[2])][colors[color]] = action;
-    }
-    //console.log(element);
-    display_pixel(parseInt(led_indecies[0]), parseInt(led_indecies[1]), parseInt(led_indecies[2]));
-
-}
-
-function empty_frame() {
-    var frame = [];
-    for (var i = 0; i < HEIGHT; i++) {
-        var layer = [];
-        for (var j = 0; j < WIDTH; j++) {
-            var colum = [];
-            for (var k = 0; k < LENGTH; k++) {
-                colum.push({'r': false, 'g': false, 'b': false});
-            }
-            layer.push(colum)
-        }
-        frame.push(layer)
-    }
-    return frame;
-}
-
-function add_frame() {
-    frames.splice(curr_frame + 1, 0, empty_frame());
-    next_frame();
-    //display_frame();
-    //frames.push(frame);
-}
-
-function delete_frame() {
-    if (frames.length == 1) {
-        frames = [];
-        add_frame();
-    } else {
-        frames.splice(curr_frame, 1);
-        if (curr_frame == frames.length) curr_frame = frames.length - 1;
-    }
-    display_frame();
-}
-
-function copy_frame() {
-    frames.splice(curr_frame + 1, 0, deep_clone(frames[curr_frame]));
-    next_frame();
-}
-
-function display_pixel(i, j, k) {
-    var led_id = "led" + i.toString() + j + k;
-    document.getElementById(led_id).style = "color:#" + (frames[curr_frame][i][j][k]["r"] ? "FF" : "00") + (frames[curr_frame][i][j][k]["g"] ? "FF" : "00") + (frames[curr_frame][i][j][k]["b"] ? "FF" : "00") + ";";
-}
-
-function display_frame() {
-    for (var i = 0; i < HEIGHT; i++) {
-        for (var j = 0; j < WIDTH; j++) {
-            for (var k = 0; k < LENGTH; k++) {
-                display_pixel(i, j, k);
-            }
-        }
-    }
-    document.getElementById("frame_counter").innerHTML = (curr_frame + 1).toString() + "/" + frames.length;
-}
-
-function next_frame() {
-    if ((curr_frame + 1) >= frames.length) {
-        if (document.getElementById("loop_checkbox").checked) {
-            curr_frame = 0;
-        }
-    } else {
-        curr_frame += 1;
-    }
-    display_frame();
-}
-
-function prev_frame() {
-    if (curr_frame == 0) {
-        if (document.getElementById("loop_checkbox").checked) {
-            curr_frame = frames.length - 1;
-        }
-    } else {
-        curr_frame -= 1;
-    }
-    display_frame();
-}
-
-function play_pause() {
-    if (play_interval === null) {
-        play_interval = setInterval(next_frame, document.getElementById("delay_spinner").value);
-        document.getElementById("play_pause_button").value = "Pause";
-    } else {
-        clearInterval(play_interval);
-        play_interval = null;
-        document.getElementById("play_pause_button").value = "Play";
-    }
-}
-
+// Wandelt eine Zahl (byte, also 0<=x<=255) in einen 8-er Array mit Boolschen Werten
 function byte_to_boolarray(input_number) {
     var result = [];
     for (var i = 0; i < 8; i++) {
@@ -164,6 +36,8 @@ function byte_to_boolarray(input_number) {
     return result;
 }
 
+
+// Wandelt ein 8-er Array, basierend auf den Wahrheitswerten darin in eine Zahl um
 function boolarray_to_bytes(boolarray) {
     if (boolarray.length % 8 == 0) {
         //thanks to https://blog.logrocket.com/binary-data-in-the-browser-untangling-an-encoding-mess-with-javascript-typed-arrays-119673c0f1fe
@@ -186,13 +60,111 @@ function boolarray_to_bytes(boolarray) {
     }
 }
 
+
+// Input Handler (Buttons und Events)
+// ==================================
+
+// Nimmt die Mouse Events entgegen und ruft die passenden Funktionen auf
+function mouseenter_event(event, element) {
+    switch (event.buttons) {
+        case 1: // linksklick
+            handle_mouseevent("left", element);
+            break;
+        case 2: // rechtsklick
+            handle_mouseevent("right", element);
+            break;
+        case 3: // beide
+            handle_mouseevent("left", element);
+            handle_mouseevent("right", element);
+            break;
+    }
+}
+
+// veraendert die Pixel aufgrund eines Mouseklicks
+function handle_mouseevent(button, element) {
+    var colors = [];
+    for (var i in "rgb") {
+        if (document.getElementById("checkbox_" + button + "_" + "rgb"[i]).checked) colors.push("rgb"[i]);
+    }
+    var action = document.getElementById("radiobox_" + button + "_fill").checked;
+    var led_indecies = element.split("");
+    for (var color in colors) {
+        frames[curr_frame][parseInt(led_indecies[0])][parseInt(led_indecies[1])][parseInt(led_indecies[2])][colors[color]] = action;
+    }
+    //console.log(element);
+    display_pixel(parseInt(led_indecies[0]), parseInt(led_indecies[1]), parseInt(led_indecies[2]));
+}
+
+// fuegt einen leeren Frame ein
+function add_frame() {
+    frames.splice(curr_frame + 1, 0, empty_frame());
+    next_frame();
+    //display_frame();
+    //frames.push(frame);
+}
+
+// loescht einen Frame
+function delete_frame() {
+    if (frames.length == 1) {
+        frames = [];
+        add_frame();
+    } else {
+        frames.splice(curr_frame, 1);
+        if (curr_frame == frames.length) curr_frame = frames.length - 1;
+    }
+    display_frame();
+}
+
+// kopiert einen Frame
+function copy_frame() {
+    frames.splice(curr_frame + 1, 0, deep_clone(frames[curr_frame]));
+    next_frame();
+}
+
+// zeigt den naechsten Frame an
+function next_frame() {
+    if ((curr_frame + 1) >= frames.length) {
+        if (document.getElementById("loop_checkbox").checked) {
+            curr_frame = 0;
+        }
+    } else {
+        curr_frame += 1;
+    }
+    display_frame();
+}
+
+// zeigt den vorherigen Frame an
+function prev_frame() {
+    if (curr_frame == 0) {
+        if (document.getElementById("loop_checkbox").checked) {
+            curr_frame = frames.length - 1;
+        }
+    } else {
+        curr_frame -= 1;
+    }
+    display_frame();
+}
+
+// startet und stoppt die Animation
+function play_pause() {
+    if (play_interval === null) {
+        play_interval = setInterval(next_frame, document.getElementById("delay_spinner").value);
+        document.getElementById("play_pause_button").value = "Pause";
+    } else {
+        clearInterval(play_interval);
+        play_interval = null;
+        document.getElementById("play_pause_button").value = "Play";
+    }
+}
+
+// oeffnet eine Datei, parst sie und zeigt sie an
 function open_file(file_list) {
     var fr = new FileReader();
     fr.onloadend = function () {
         var result = this.result;
-        const BYTES_PER_FRAME = (LENGTH * HEIGHT * WIDTH * 3 / 8);
+
         if (this.result.length % BYTES_PER_FRAME == 0) {
-            var colors = color_order_binary.split("");
+            var colors = COLOR_ORDER_BINARY.split("");
             var frame_count = this.result.length / BYTES_PER_FRAME;
             var new_frames = [];
             for (var frame_number = 0; frame_number < frame_count; frame_number++) {
@@ -206,7 +178,7 @@ function open_file(file_list) {
                         var color = colors[color_index];
                         for (var j = 0; j < WIDTH; j++) {
                             for (var k = 0; k < LENGTH; k++) {
-                                frame[i][j][k][color] = frame_data[i * 3 * 4 * 4 + color_index * 16 + j * 4 + k];
+                                frame[i][j][k][color] = frame_data[calculate_bit_position(i,j,k,0,color_index)];
                             }
                         }
                     }
@@ -223,18 +195,20 @@ function open_file(file_list) {
     fr.readAsBinaryString(file_list[0]);
 }
 
+
+// speichert die aktuellen Daten in eine Datei
 function save_file() {
-    var colors = color_order_binary.split("");
+    var colors = COLOR_ORDER_BINARY.split("");
     var frame_count = frames.length;
     var data = [];
-    const BITS_PER_FRAME = (LENGTH * HEIGHT * WIDTH * 3);
+
     for (var frame_number = 0; frame_number < frame_count; frame_number++) {
         for (var i = 0; i < HEIGHT; i++) { //Layer
             for (var color_index in colors) {
                 var color = colors[color_index];
                 for (var j = 0; j < WIDTH; j++) {
                     for (var k = 0; k < LENGTH; k++) {
-                        data[frame_number * BITS_PER_FRAME + i * 3 * 4 * 4 + color_index * 16 + j * 4 + k] = frames[frame_number][i][j][k][color];
+                        data[calculate_bit_position(i,j,k,frame_number,color_index)] = frames[frame_number][i][j][k][color];
                     }
                 }
             }
@@ -250,10 +224,71 @@ function save_file() {
     window.URL.revokeObjectURL(url);
 }
 
-function toogle_color_control(color_char,button) {
+// Zum Umschalten der Color buttons
+function toogle_color_control(color_char, button) {
     document.getElementById("checkbox_" + button + "_" + color_char).checked = !document.getElementById("checkbox_" + button + "_" + color_char).checked
 }
 
+
+// Funktionen fuer interne Aufgaben
+// ================================
+
+
+function create_leds() {
+
+    var led_ui_html = "<table class='leds'>\n";
+
+    for (var i = 0; i < WIDTH; i++) {
+        led_ui_html += "<tr>";
+        for (var j = 0; j < HEIGHT; j++) {
+            for (var k = 0; k < LENGTH; k++) {
+                var led_id = j.toString() + i + k;
+                led_ui_html += "<td id='led" + led_id + "' onmouseenter='mouseenter_event(event,\"" + led_id + "\")' onmousedown='mouseenter_event(event,\"" + led_id + "\")' class='led-ui-element'>&#x25cf;</td>";
+            }
+            if (j + 1 < HEIGHT)
+                led_ui_html += "<td class='placeholder'> </td>";
+        }
+        led_ui_html += "</tr>";
+    }
+
+    led_ui_html += "</table>";
+
+    document.getElementById("led_ui").innerHTML = led_ui_html;
+}
+
+function empty_frame() {
+    var frame = [];
+    for (var i = 0; i < HEIGHT; i++) {
+        var layer = [];
+        for (var j = 0; j < WIDTH; j++) {
+            var colum = [];
+            for (var k = 0; k < LENGTH; k++) {
+                colum.push({'r': false, 'g': false, 'b': false});
+            }
+            layer.push(colum)
+        }
+        frame.push(layer)
+    }
+    return frame;
+}
+
+function display_pixel(i, j, k) {
+    var led_id = "led" + i.toString() + j + k;
+    document.getElementById(led_id).style = "color:#" + (frames[curr_frame][i][j][k]["r"] ? "FF" : "00") + (frames[curr_frame][i][j][k]["g"] ? "FF" : "00") + (frames[curr_frame][i][j][k]["b"] ? "FF" : "00") + ";";
+}
+
+function display_frame() {
+    for (var i = 0; i < HEIGHT; i++) {
+        for (var j = 0; j < WIDTH; j++) {
+            for (var k = 0; k < LENGTH; k++) {
+                display_pixel(i, j, k);
+            }
+        }
+    }
+    document.getElementById("frame_counter").innerHTML = (curr_frame + 1).toString() + "/" + frames.length;
+}
+
+// Behandelt die Shortcuts und ruft die passenden Funktionen auf
 window.onkeyup = function (e) {
     if (e.target.tagName == "INPUT") return;
 
@@ -277,13 +312,13 @@ window.onkeyup = function (e) {
             play_pause();
             break;
         case "r": // r
-            toogle_color_control("r","left");
+            toogle_color_control("r", "left");
             break;
         case "g": // g
-            toogle_color_control("g","left");
+            toogle_color_control("g", "left");
             break;
         case "b": // b
-            toogle_color_control("b","left");
+            toogle_color_control("b", "left");
             break;
         case "w": // w
             for (var i in "rgb")
@@ -297,13 +332,13 @@ window.onkeyup = function (e) {
             }
             break;
         case "R": // r
-            toogle_color_control("r","right");
+            toogle_color_control("r", "right");
             break;
         case "G": // g
-            toogle_color_control("g","right");
+            toogle_color_control("g", "right");
             break;
         case "B": // b
-            toogle_color_control("b","right");
+            toogle_color_control("b", "right");
             break;
         case "W": // w
             for (var i in "rgb")
@@ -324,6 +359,15 @@ window.onkeyup = function (e) {
 
 };
 
-create_table();
+function calculate_bit_position(i, j, k, frame_number, color_index) {
+
+    return frame_number * BITS_PER_FRAME + i * COLOR_QUANTITY * WIDTH * LENGTH + color_index * WIDTH * LENGTH + j * LENGTH + k ;
+}
+
+create_leds();
 add_frame();
+
+
+
+
 
