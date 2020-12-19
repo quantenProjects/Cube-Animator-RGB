@@ -195,9 +195,7 @@ function open_file(file_list) {
     fr.readAsBinaryString(file_list[0]);
 }
 
-
-// speichert die aktuellen Daten in eine Datei
-function save_file() {
+function bit_array_of_current_data() {
     var colors = COLOR_ORDER_BINARY.split("");
     var frame_count = frames.length;
     var data = [];
@@ -214,7 +212,12 @@ function save_file() {
             }
         }
     }
-    var data_string = boolarray_to_bytes(data);
+    return data;
+}
+
+// speichert die aktuellen Daten in eine Datei
+function save_file() {
+    var data_string = boolarray_to_bytes(bit_array_of_current_data());
     var a = document.getElementById("download_link_hidden");
     var blob = new Blob([data_string]);
     var url = window.URL.createObjectURL(blob);
@@ -361,7 +364,7 @@ window.onkeyup = function (e) {
 
 function calculate_bit_position(i, j, k, frame_number, color_index) {
 
-    return frame_number * BITS_PER_FRAME + i * COLOR_QUANTITY * WIDTH * LENGTH + color_index * WIDTH * LENGTH + j * LENGTH + k ;
+    return frame_number * BITS_PER_FRAME   +   i * COLOR_QUANTITY * WIDTH * LENGTH   +   color_index * WIDTH * LENGTH   +   j * LENGTH   +   k ;
 }
 
 create_leds();
