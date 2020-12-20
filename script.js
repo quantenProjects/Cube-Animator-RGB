@@ -82,31 +82,58 @@ function boolarray_to_bytes(boolarray) {
 function mouseenter_event(event, element) {
     switch (event.buttons) {
         case 1: // linksklick
-            handle_mouseevent("left", element);
+            handle_mouseevent("left", event.shiftKey, event.ctrlKey, element);
             break;
         case 2: // rechtsklick
-            handle_mouseevent("right", element);
+            handle_mouseevent("right", event.shiftKey, event.ctrlKey, element);
             break;
         case 3: // beide
-            handle_mouseevent("left", element);
-            handle_mouseevent("right", element);
+            handle_mouseevent("left", event.shiftKey, event.ctrlKey, element);
+            handle_mouseevent("right", event.shiftKey, event.ctrlKey, element);
             break;
     }
 }
 
+function apply_action_to_pixel(i, j, k, colors, action) {
+    for (var color in colors) {
+        frames[curr_frame][parseInt(i)][parseInt(j)][parseInt(k)][colors[color]] = action;
+    }
+    display_pixel(i, j, k);
+}
+
 // veraendert die Pixel aufgrund eines Mouseklicks
-function handle_mouseevent(button, element) {
+function handle_mouseevent(button, shift, ctrl, element) {
     var colors = [];
     for (var i in "rgb") {
         if (document.getElementById("checkbox_" + button + "_" + "rgb"[i]).checked) colors.push("rgb"[i]);
     }
     var action = document.getElementById("radiobox_" + button + "_fill").checked;
     var led_indecies = element.split("");
-    for (var color in colors) {
-        frames[curr_frame][parseInt(led_indecies[0])][parseInt(led_indecies[1])][parseInt(led_indecies[2])][colors[color]] = action;
+    if (ctrl) {
+        for (var j = 0; j < WIDTH; j++) {
+            for (var k = 0; k<LENGTH; k++) {
+                apply_action_to_pixel(led_indecies[0], j, k, colors, action)
+            }
+        }
+    } else if (shift) {
+        var current_colors = Object.values(frames[curr_frame][parseInt(led_indecies[0])][parseInt(led_indecies[1])][parseInt(led_indecies[2])]);
+        var is_same_color = true;
+        for (var j = 0; j < WIDTH; j++) {
+            for (var k = 0; k<LENGTH; k++) {
+                is_same_color = true;
+                for (var color_id = 0; color_id < 3; color_id++) {
+                    if (current_colors[color_id] !== Object.values(frames[curr_frame][parseInt(led_indecies[0])][j][k])[color_id]) {
+                        is_same_color = false;
+                    }
+                }
+                if (is_same_color) {
+                    apply_action_to_pixel(led_indecies[0], j, k, colors, action);
+                }
+            }
+        }
+    } else {
+        apply_action_to_pixel(led_indecies[0], led_indecies[1], led_indecies[2], colors, action)
     }
-    //console.log(element);
-    display_pixel(parseInt(led_indecies[0]), parseInt(led_indecies[1]), parseInt(led_indecies[2]));
 }
 
 // fuegt einen leeren Frame ein
