@@ -1,13 +1,28 @@
-const HEIGHT = 4; // Anzahl der Layer
-const WIDTH = 4;  // Breite
-const LENGTH = 4; // laenge der LEDs, in der UI vertikal
+var current_config = {
+    "h": 4, "w": 4, "l": 4, "cob": "bgr"
+};
+
+try {
+    var supplied_config = window.location.hash.substr(1).split(",");
+    console.log(supplied_config);
+    for (var option in supplied_config) {
+        var splitted_option = supplied_config[option].split(":");
+        if (splitted_option[0] in current_config) {
+            current_config[splitted_option[0]] = splitted_option[1];
+        }
+    }
+} catch { }
+
+const HEIGHT = parseInt(current_config["h"]); // Anzahl der Layer
+const WIDTH = parseInt(current_config["w"]);  // Breite
+const LENGTH = parseInt(current_config["l"]); // laenge der LEDs, in der UI vertikal
 
 var frames = [];
 var curr_frame = 0;
 
 var play_interval = null;
 
-const COLOR_ORDER_BINARY = "bgr";
+const COLOR_ORDER_BINARY = current_config["cob"];
 const COLOR_QUANTITY = COLOR_ORDER_BINARY.length;
 const BITS_PER_FRAME = (LENGTH * HEIGHT * WIDTH * COLOR_QUANTITY);
 const BYTES_PER_FRAME = (BITS_PER_FRAME / 8);
