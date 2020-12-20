@@ -4,7 +4,6 @@ var current_config = {
 
 try {
     var supplied_config = window.location.hash.substr(1).split(",");
-    console.log(supplied_config);
     for (var option in supplied_config) {
         var splitted_option = supplied_config[option].split(":");
         if (splitted_option[0] in current_config) {
@@ -261,7 +260,7 @@ function create_leds() {
         for (var j = 0; j < HEIGHT; j++) {
             for (var k = 0; k < LENGTH; k++) {
                 var led_id = j.toString() + i + k;
-                led_ui_html += "<td id='led" + led_id + "' onmouseenter='mouseenter_event(event,\"" + led_id + "\")' onmousedown='mouseenter_event(event,\"" + led_id + "\")' class='led-ui-element'>&#x25cf;</td>";
+                led_ui_html += "<td id='led" + led_id + "' onmouseenter='mouseenter_event(event,\"" + led_id + "\")' onmousedown='mouseenter_event(event,\"" + led_id + "\")' class='led-ui-element'></td>";
             }
             if (j + 1 < HEIGHT)
                 led_ui_html += "<td class='placeholder'> </td>";
@@ -292,7 +291,7 @@ function empty_frame() {
 
 function display_pixel(i, j, k) {
     var led_id = "led" + i.toString() + j + k;
-    document.getElementById(led_id).style = "color:#" + (frames[curr_frame][i][j][k]["r"] ? "FF" : "00") + (frames[curr_frame][i][j][k]["g"] ? "FF" : "00") + (frames[curr_frame][i][j][k]["b"] ? "FF" : "00") + ";";
+    document.getElementById(led_id).style = "background-color:#" + (frames[curr_frame][i][j][k]["r"] ? "FF" : "00") + (frames[curr_frame][i][j][k]["g"] ? "FF" : "00") + (frames[curr_frame][i][j][k]["b"] ? "FF" : "00") + ";";
 }
 
 function display_frame() {
