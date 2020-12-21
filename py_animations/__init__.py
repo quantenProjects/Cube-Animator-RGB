@@ -1,15 +1,12 @@
 #!/bin/env python3
-from typing import List
 
 
 class Voxel(list):
     C2I = {"r": 0, "g": 1, "b": 2}
     I2C = ["r", "g", "b"]
+    COLOR_COUNT = 3
 
-    # def __new__(cls, red: float = 0, green: float = 0, blue: float = 0):
-    #    return list.__new__(Color, [red, green, blue])
-
-    def __init__(self, red: float = 0, green: float = 0, blue: float = 0, voxel = None):
+    def __init__(self, red: float = 0, green: float = 0, blue: float = 0, voxel=None):
         super().__init__()
         self.append(red)
         self.append(green)
@@ -57,7 +54,7 @@ class Voxel(list):
 
 class Row(list):
 
-    def __init__(self, voxel_count: int = None, voxel: Voxel = None, row = None):
+    def __init__(self, voxel_count: int = None, voxel: Voxel = None, row=None):
         super().__init__()
         if voxel_count is not None:
             if voxel is None:
@@ -81,20 +78,22 @@ class Row(list):
     def scroll_in_row(self, reverse: bool = False, wrap_color: Voxel = None):
         if reverse:
             tmp = self[0]
-            for i in range(len(self) - 1, 0, -1):
-                self[i - 1] = self[i]
+            for i in range(len(self) - 1):
+                self[i] = self[i + 1]
             if wrap_color is None:
                 self[-1] = tmp
             else:
+                self[-1] = self[-1].copy()
                 self[-1].set_like(wrap_color)
         else:
             tmp = self[-1]
-            for i in range(len(self) - 1):
-                self[i + 1] = self[i]
+            for i in range(len(self) - 1, 0, -1):
+                self[i] = self[i - 1]
             if wrap_color is None:
                 self[0] = tmp
             else:
-                self[-1].set_like(wrap_color)
+                self[0] = self[0].copy()
+                self[0].set_like(wrap_color)
 
     def copy(self):
         return Row(row=self)
@@ -102,7 +101,7 @@ class Row(list):
 
 class Layer(list):
 
-    def __init__(self, row_count: int = None, row: Row = None, layer = None):
+    def __init__(self, row_count: int = None, row: Row = None, layer=None):
         super().__init__()
         if row_count is not None and row is not None:
             for i in range(row_count):
@@ -128,20 +127,22 @@ class Layer(list):
     def scroll_in_layer(self, reverse: bool = False, wrap_color: Voxel = None):
         if reverse:
             tmp = self[0]
-            for i in range(len(self) - 1, 0, -1):
-                self[i - 1] = self[i]
+            for i in range(len(self) - 1):
+                self[i] = self[i + 1]
             if wrap_color is None:
                 self[-1] = tmp
             else:
+                self[-1] = self[-1].copy()
                 self[-1].set_all_like(wrap_color)
         else:
             tmp = self[-1]
-            for i in range(len(self) - 1):
-                self[i + 1] = self[i]
+            for i in range(len(self) - 1, 0, -1):
+                self[i] = self[i - 1]
             if wrap_color is None:
                 self[0] = tmp
             else:
-                self[-1].set_all_like(wrap_color)
+                self[0] = self[0].copy()
+                self[0].set_all_like(wrap_color)
 
     def copy(self):
         return Layer(layer=self)
@@ -149,7 +150,7 @@ class Layer(list):
 
 class Cube(list):
 
-    def __init__(self, size:tuple[int, int, int] = None, cube = None):
+    def __init__(self, size: tuple[int, int, int] = None, cube=None):
         super().__init__()
         if size is not None:
             if len(size) != 3:
@@ -173,20 +174,22 @@ class Cube(list):
     def scroll_in_cube(self, reverse: bool = False, wrap_color: Voxel = None):
         if reverse:
             tmp = self[0]
-            for i in range(len(self) - 1, 0, -1):
-                self[i - 1] = self[i]
+            for i in range(len(self) - 1):
+                self[i] = self[i + 1]
             if wrap_color is None:
                 self[-1] = tmp
             else:
+                self[-1] = self[-1].copy()
                 self[-1].set_all_like(wrap_color)
         else:
             tmp = self[-1]
-            for i in range(len(self) - 1):
-                self[i + 1] = self[i]
+            for i in range(len(self) - 1, 0, -1):
+                self[i] = self[i - 1]
             if wrap_color is None:
                 self[0] = tmp
             else:
-                self[-1].set_all_like(wrap_color)
+                self[0] = self[0].copy()
+                self[0].set_all_like(wrap_color)
 
     def scroll_in_layer(self, reverse: bool = False, wrap_color: Voxel = None):
         for layer in self:
@@ -200,15 +203,14 @@ class Cube(list):
         return Cube(cube=self)
 
 
-
 class Animation(list):
 
-    def __init__(self, size:tuple[int, int, int]):
+    def __init__(self, size: tuple[int, int, int]):
         super().__init__()
         self.append(Cube(size))
         self.size = size
 
-    def convert_to_binary(self, color_order:str = None, threshold:float = 0.5) -> bytearray:
+    def convert_to_binary(self, color_order: str = None, threshold: float = 0.5) -> bytearray:
         if color_order is None:
             color_order = "bgr"
         color_order_index = [Voxel.C2I[color] for color in color_order]
